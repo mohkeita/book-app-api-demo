@@ -6,6 +6,7 @@ import io.mohkeita.bookappapi.entities.Book;
 import io.mohkeita.bookappapi.exception.BookNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,5 +40,23 @@ public class BookService {
             throw new BookNotFoundException(String.format("Book with id: '%s' not found ", id));
         }
         return requestBook.get();
+    }
+
+    @Transactional
+    public Book updateBook(Long id, BookRequest bookToUpdateRequest) {
+
+        Optional<Book> bookFromDatabase = bookRepository.findById(id);
+
+        if (bookFromDatabase.isEmpty()) {
+            throw new BookNotFoundException(String.format("Book with id: '%s' not found ", id));
+        }
+
+        Book bookToUpdate = bookFromDatabase.get();
+
+        bookToUpdate.setAuthor(bookToUpdateRequest.getAuthor());
+        bookToUpdate.setIsbn(bookToUpdateRequest.getIsbn());
+        bookToUpdate.setTitle(bookToUpdateRequest.getTitle());
+
+        return bookToUpdate;
     }
 }
